@@ -1,0 +1,31 @@
+version: '2'
+services:
+
+  sidecar:
+    image: hydrokhoos/ndn-all:arm
+    tty: true
+    volumes:
+      - ./:/src/
+      - data-volume:/data/
+      - ../topology/:/topology/
+      - log:/log/
+    ports:
+      - "<ip:port>:6363"
+    cpuset: <service_id>
+
+  service:
+    build: ./service
+    tty: true
+    volumes:
+      - ./:/src/
+      - data-volume:/data/
+    entrypoint:
+      - python3
+      - /src/service.py
+    cpuset: <service_id>
+
+volumes:
+  data-volume:
+    external: false
+  log:
+    external: true

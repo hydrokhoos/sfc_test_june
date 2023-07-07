@@ -1,0 +1,35 @@
+version: '2'
+services:
+
+  sidecar:
+    image: hydrokhoos/ndn-all:arm
+    tty: true
+    volumes:
+      - ./:/src/
+      - data-volume:/data/
+      - log:/log/
+    environment:
+      - NDN_CLIENT_TRANSPORT=tcp4://<router_ip>:63601
+      - ROUTER_PREFIX=/ndn/test/%C1.Router/router1
+    cpuset: <service_id>
+    entrypoint:
+      - /bin/sh
+      - /src/start.sh
+      - /<service_name>
+
+  service:
+    build: ./service
+    tty: true
+    volumes:
+      - ./:/src/
+      - data-volume:/data/
+    cpuset: <service_id>
+    entrypoint:
+      - python3
+      - /src/service.py
+
+volumes:
+  data-volume:
+    external: false
+  log:
+    external: true
