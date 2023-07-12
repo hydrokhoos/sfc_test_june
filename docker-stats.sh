@@ -4,7 +4,7 @@ function func() {
   echo -n " finishing"
   for container in $(docker stats --all --no-stream --format {{.Name}})
   do
-    echo "TIMESTAMP,CONTAINER ID,NAME,CPU %,MEM USAGE / LIMIT,MEM %,NET I/O,BLOCK I/O,PIDS" > $dir/$container.csv
+    echo "TIMESTAMP,CONTAINER ID,NAME,CPU %,MEM USAGE,LIMIT,MEM %,NET IN,NET OUT,BLOCK IN,BLOCK OUT,PIDS" > $dir/$container.csv
     cat $dir/$CSV_FILE | grep $container >> $dir/$container.csv
     echo -n "."
   done
@@ -21,8 +21,9 @@ dir=stats_$(date "+%Y-%m%d-%H%M-%S")
 mkdir $dir
 CSV_FILE=stats-all.csv
 
-echo "TIMESTAMP,CONTAINER ID,NAME,CPU %,MEM USAGE / LIMIT,MEM %,NET I/O,BLOCK I/O,PIDS" > $dir/$CSV_FILE
+echo "TIMESTAMP,CONTAINER ID,NAME,CPU %,MEM USAGE,LIMIT,MEM %,NET IN,NET OUT,BLOCK IN,BLOCK OUT,PIDS" > $dir/$CSV_FILE
 while true
 do
-  docker stats --all --no-stream --format "$(date "+%H:%M:%S"),{{.ID}},{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.MemPerc}},{{.NetIO}},{{.BlockIO}},{{.PIDs}}" >> $dir/$CSV_FILE
+  docker stats --all --no-stream --format "$(date "+%H:%M:%S"),{{.ID}},{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.MemPerc}},{{.NetIO}},{{.BlockIO}},{{.PIDs}}" \
+  | sed -e "s/\ \/\ /,/g" >> $dir/$CSV_FILE
 done
